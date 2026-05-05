@@ -19,6 +19,7 @@
   "homepage": "https://github.com/harrywhite13/cs312LLMFilterExtension#readme",
   "type": "module",
   "dependencies": {
-    "@xenova/transformers": "^2.0.1"
+    "@xenova/transformers": "^2.0.1",
+    "libphonenumber-js": "^1.12.42"
   }
 }
