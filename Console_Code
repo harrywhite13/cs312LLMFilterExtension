@@ -1,0 +1,66 @@
+// Paste the RedactedValues object from your orchestrator here:
+const RedactedValues = {
+  "{{Redacted: DATE_TIME_1234 }}": "2/17/2026",
+  "{{Redacted: PHONE_NUMBER_abcd }}": "484 988 5919",
+  "{{Redacted: URL_9f8e }}": "https://workspace.google.com/products/drive/"
+};
+
+// Replace placeholders in visible ChatGPT output
+function unredactVisibleText(root = document.body) {
+  const keys = Object.keys(RedactedValues);
+  if (!keys.length) return;
+
+  const walker = document.createTreeWalker(
+    root,
+    NodeFilter.SHOW_TEXT,
+    {
+      acceptNode(node) {
+        if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
+        return keys.some(key => node.nodeValue.includes(key))
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_REJECT;
+      }
+    }
+  );
+
+  const textNodes = [];
+  while (walker.nextNode()) {
+    textNodes.push(walker.currentNode);
+  }
+
+  for (const node of textNodes) {
+    let text = node.nodeValue;
+
+    for (const [tag, originalValue] of Object.entries(RedactedValues)) {
+      text = text.replaceAll(tag, originalValue);
+    }
+
+    node.nodeValue = text;
+  }
+}
+
+// Run immediately
+unredactVisibleText();
+
+// Keep replacing as ChatGPT streams new text
+const unredactObserver = new MutationObserver(mutations => {
+  for (const mutation of mutations) {
+    if (mutation.type === "characterData") {
+      unredactVisibleText(mutation.target.parentNode);
+    }
+
+    for (const node of mutation.addedNodes) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        unredactVisibleText(node.parentNode);
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        unredactVisibleText(node);
+      }
+    }
+  }
+});
+
+unredactObserver.observe(document.body, {
+  childList: true,
+  subtree: true,
+  characterData: true
+});
