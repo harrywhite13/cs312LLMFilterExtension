@@ -24,4 +24,4 @@ send a message to chatgpt and it should look totally normal
 when you send the message the browser console will show the original and redacted text ex
 
 Original Text: hello my name is john doe
-modifyfetch.js:89 Redacted to: hello my name is {{Redacted: PER_9489}}
+Redacted to: hello my name is {{Redacted: PER_9489}}
